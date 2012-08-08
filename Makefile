@@ -171,7 +171,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
 				  -e s/sh[234].*/sh/ )
 
-SUBARCH := arm
+# SUBARCH := arm
 # Cross compiling and selecting different set of gcc/bin-utils
 # ---------------------------------------------------------------------------
 #
@@ -194,8 +194,10 @@ SUBARCH := arm
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 SUBARCH := arm
 export KBUILD_BUILDHOST := $(SUBARCH)
-ARCH		?= $(SUBARCH)
-CROSS_COMPILE	?= arm-eabi-
+ARCH		?= arm
+# CROSS_COMPILE	?= arm-eabi-
+# CROSS_COMPILE   ?= /home/guni/android_dev/arm-2012q2/bin/arm-none-eabi-
+CROSS_COMPILE	?= /home/guni/android_kernel/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-
 CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
 
 # Architecture as present in compile.h
