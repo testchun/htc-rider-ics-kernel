@@ -197,7 +197,7 @@ static unsigned int rider_wifi_status(struct device *dev)
 
 static unsigned int rider_wifislot_type = MMC_TYPE_SDIO_WIFI;
 static struct mmc_platform_data rider_wifi_data = {
-	.ocr_mask               = MMC_VDD_28_29,
+	.ocr_mask               = MMC_VDD_24_25,
 	.status                 = rider_wifi_status,
 	.register_status_notify = rider_wifi_status_register,
 	.embedded_sdio          = &rider_wifi_emb_data,
