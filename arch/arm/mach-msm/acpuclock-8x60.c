@@ -40,13 +40,14 @@
 #define COMPLEX_SLEW		7
 
 /* PLL calibration limits.
- * The PLL hardware is capable of 384MHz to 1536MHz. The L_VALs
+ * The PLL hardware is capable of 384MHz to 1944MHz. The L_VALs
  * used for calibration should respect these limits. */
 #define L_VAL_SCPLL_CAL_MIN	0x08 /* =  432 MHz with 27MHz source */
-#define L_VAL_SCPLL_CAL_MAX	0x1C /* = 1512 MHz with 27MHz source */
+#define L_VAL_SCPLL_CAL_MAX	0x24 /* = 1944 MHz with 27MHz source */
 
-#define MAX_VDD_SC		1250000 /* uV */
-#define MAX_VDD_MEM		1250000 /* uV */
+#define MIN_VDD_SC       700000 /* uV */
+#define MAX_VDD_SC		1400000 /* uV */
+#define MAX_VDD_MEM		1400000 /* uV */
 #define MAX_VDD_DIG		1200000 /* uV */
 #define MAX_AXI			 310500 /* KHz */
 #define SCPLL_LOW_VDD_FMAX	 594000 /* KHz */
@@ -190,6 +191,9 @@ static struct clkctl_l2_speed l2_freq_tbl_v2[] = {
 	[17] = {1296000,  1, 0x18, 1200000, 1225000, 3},
 	[18] = {1350000,  1, 0x19, 1200000, 1225000, 3},
 	[19] = {1404000,  1, 0x1A, 1200000, 1250000, 3},
+	[20] = {1458000,  1, 0x1B, 1200000, 1250000, 3},
+	[21] = {1512000,  1, 0x1C, 1200000, 1250000, 3},
+	[22] = {1566000,  1, 0x1D, 1200000, 1250000, 3},
 };
 
 #define L2(x) (&l2_freq_tbl_v2[(x)])
@@ -214,6 +218,18 @@ static struct clkctl_acpu_speed acpu_freq_tbl_1188mhz[] = {
   { {1, 1}, 1080000,  ACPU_SCPLL, 0, 0, 1, 0x14, L2(13), 1137500, 0x03006000},
   { {1, 1}, 1134000,  ACPU_SCPLL, 0, 0, 1, 0x15, L2(14), 1162500, 0x03006000},
   { {1, 1}, 1188000,  ACPU_SCPLL, 0, 0, 1, 0x16, L2(15), 1187500, 0x03006000},
+  { {1, 1}, 1242000,  ACPU_SCPLL, 0, 0, 1, 0x17, L2(16), 1125000, 0x03006000},
+  { {1, 1}, 1296000,  ACPU_SCPLL, 0, 0, 1, 0x18, L2(17), 1150000, 0x03006000},
+  { {1, 1}, 1350000,  ACPU_SCPLL, 0, 0, 1, 0x19, L2(18), 1175000, 0x03006000},
+  { {1, 1}, 1404000,  ACPU_SCPLL, 0, 0, 1, 0x1A, L2(19), 1200000, 0x03006000},
+  { {1, 1}, 1458000,  ACPU_SCPLL, 0, 0, 1, 0x1B, L2(20), 1200000, 0x03006000},
+  { {1, 1}, 1512000,  ACPU_SCPLL, 0, 0, 1, 0x1C, L2(21), 1225000, 0x03006000},
+  { {1, 1}, 1566000,  ACPU_SCPLL, 0, 0, 1, 0x1D, L2(22), 1225000, 0x03006000},
+  { {1, 1}, 1620000,  ACPU_SCPLL, 0, 0, 1, 0x1E, L2(22), 1250000, 0x03006000},
+  { {1, 1}, 1674000,  ACPU_SCPLL, 0, 0, 1, 0x1F, L2(22), 1275000, 0x03006000},
+  { {1, 1}, 1728000,  ACPU_SCPLL, 0, 0, 1, 0x20, L2(22), 1300000, 0x03006000},
+  { {1, 1}, 1782000,  ACPU_SCPLL, 0, 0, 1, 0x21, L2(22), 1325000, 0x03006000},
+  { {1, 1}, 1836000,  ACPU_SCPLL, 0, 0, 1, 0x22, L2(22), 1350000, 0x03006000},
   { {0, 0}, 0 },
 };
 
@@ -669,6 +685,7 @@ out:
 	return rc;
 }
 
+/*
 #ifdef CONFIG_PERFLOCK
 unsigned int get_max_cpu_freq(void)
 {
@@ -679,6 +696,41 @@ unsigned int get_max_cpu_freq(void)
 	return f->acpuclk_khz;;
 }
 #endif
+*/
+
+ssize_t acpuclk_get_vdd_levels_str(char *buf) {
+	int i, len = 0;
+
+	if (buf) {
+		mutex_lock(&drv_state.lock);
+
+		for (i = 0; acpu_freq_tbl[i].acpuclk_khz; i++) {
+			len += sprintf(buf + len, "%8u: %8d\n", acpu_freq_tbl[i].acpuclk_khz, acpu_freq_tbl[i].vdd_sc );
+		}
+
+		mutex_unlock(&drv_state.lock);
+	}
+	return len;
+}
+
+void acpuclk_set_vdd(unsigned int khz, int vdd_uv) {
+	int i;
+	unsigned int new_vdd_uv;
+
+	mutex_lock(&drv_state.lock);
+
+	for (i = 0; acpu_freq_tbl[i].acpuclk_khz; i++) {
+		if (khz == 0)
+			new_vdd_uv = min(max((acpu_freq_tbl[i].vdd_sc + vdd_uv), (unsigned int)MIN_VDD_SC), (unsigned int)MAX_VDD_SC);
+		else if ( acpu_freq_tbl[i].acpuclk_khz == khz)
+			new_vdd_uv = min(max((unsigned int)vdd_uv, (unsigned int)MIN_VDD_SC), (unsigned int)MAX_VDD_SC);
+		else 
+			continue;
+		acpu_freq_tbl[i].vdd_sc = new_vdd_uv;
+	}
+
+	mutex_unlock(&drv_state.lock);
+}
 
 static void __init scpll_init(int sc_pll)
 {
@@ -882,7 +934,7 @@ static unsigned int __init select_freq_plan(void)
 		speed_bin = (pte_efuse >> 4) & 0xF;
 
 	if (speed_bin == 0x1) {
-		max_khz = 1512000;
+		max_khz = 1836000;
 		pvs = (pte_efuse >> 10) & 0x7;
 		if (pvs == 0x7)
 			pvs = (pte_efuse >> 13) & 0x7;
@@ -907,7 +959,7 @@ static unsigned int __init select_freq_plan(void)
 			break;
 		}
 	} else {
-		max_khz = 1188000;
+		max_khz = 1836000;
 		acpu_freq_tbl = acpu_freq_tbl_1188mhz;
 	}
 
