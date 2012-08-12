@@ -1,1 +1,1 @@
-#define UTS_RELEASE "3.0.39-gunine+"
+#define UTS_RELEASE "3.0.40-gunine+"

@@ -1,6 +1,6 @@
 /*
  * Automatically generated C config: don't edit
- * Linux/arm 3.0.39 Kernel Configuration
+ * Linux/arm 3.0.40 Kernel Configuration
  */
 #define CONFIG_IP6_NF_MATCH_AH 1
 #define CONFIG_NF_CONNTRACK_H323 1
@@ -133,7 +133,6 @@
 #define CONFIG_MFD_PM8XXX 1
 #define CONFIG_KERNEL_PMEM_SMI_REGION 1
 #define CONFIG_NF_CONNTRACK_SANE 1
-#define CONFIG_USB_OTG 1
 #define CONFIG_NF_CT_PROTO_DCCP 1
 #define CONFIG_ZLIB_INFLATE 1
 #define CONFIG_HWMON 1
@@ -666,7 +665,6 @@
 #define CONFIG_INET_AH 1
 #define CONFIG_MMC_PERF_PROFILING 1
 #define CONFIG_FB_MSM_OVERLAY0_WRITEBACK 1
-#define CONFIG_USB_OTG_HOST 1
 #define CONFIG_DEFAULT_IOSCHED "bfq"
 #define CONFIG_IPV6_MIP6 1
 #define CONFIG_NLATTR 1
