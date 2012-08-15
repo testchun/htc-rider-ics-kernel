@@ -232,8 +232,6 @@ static int msm_cpufreq_suspend(void)
 		mutex_unlock(&per_cpu(cpufreq_suspend, cpu).suspend_mutex);
 	}
 
-	if (num_online_cpus() > 1)
-		cpu_down(1);
 	return NOTIFY_DONE;
 }
 
