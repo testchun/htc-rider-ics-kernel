@@ -71,6 +71,14 @@ static void send_usb_connect_notify(struct work_struct *w)
 
 	motg->connect_type_ready = 1;
 	USBH_INFO("send connect type %d\n", motg->connect_type);
+	mutex_lock(&notify_sem);
+#ifdef CONFIG_CABLE_DETECT_ACCESSORY
+	if (cable_get_accessory_type() == DOCK_STATE_DMB) {
+		motg->connect_type = CONNECT_TYPE_CLEAR;
+		USBH_INFO("current accessory is DMB, send  %d\n", motg->connect_type);
+	}
+#endif
+
 #ifdef CONFIG_FORCE_FAST_CHARGE
 	if (motg->connect_type == CONNECT_TYPE_USB) {
 		USB_peripheral_detected = USB_ACC_DETECTED; /* Inform forced fast charge that a USB accessory has been attached */
@@ -80,13 +88,7 @@ static void send_usb_connect_notify(struct work_struct *w)
 		USBH_INFO("USB forced fast charge : No USB device currently attached");
 	}
 #endif
-	mutex_lock(&notify_sem);
-#ifdef CONFIG_CABLE_DETECT_ACCESSORY
-	if (cable_get_accessory_type() == DOCK_STATE_DMB) {
-		motg->connect_type = CONNECT_TYPE_CLEAR;
-		USBH_INFO("current accessory is DMB, send  %d\n", motg->connect_type);
-	}
-#endif
+
 	list_for_each_entry(notifier, &g_lh_usb_notifier_list, notifier_link) {
 		if (notifier->func != NULL) {
 			/* Notify other drivers about connect type. */
@@ -714,6 +716,8 @@ static int msm_otg_reset(struct otg_transceiver *otg)
 
 #ifdef CONFIG_FORCE_FAST_CHARGE
 	USB_porttype_detected = NO_USB_DETECTED; /* No USB plugged, clear fast charge detected port value */
+	is_fast_charge_forced = FAST_CHARGE_NOT_FORCED; /* No fast charge can be forced then... */
+	current_charge_mode = CURRENT_CHARGE_MODE_DISCHARGING; /* ... and we are now on battery */
 #endif
 
 	clk_enable(motg->clk);
