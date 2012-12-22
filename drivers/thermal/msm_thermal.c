@@ -23,16 +23,16 @@
 #define DEF_TEMP_SENSOR      0
 
 //max thermal limit
-#define DEF_ALLOWED_MAX_HIGH 75
-#define DEF_ALLOWED_MAX_FREQ 486000
+#define DEF_ALLOWED_MAX_HIGH 76
+#define DEF_ALLOWED_MAX_FREQ 918000
 
 //mid thermal limit
 #define DEF_ALLOWED_MID_HIGH 69
-#define DEF_ALLOWED_MID_FREQ 864000
+#define DEF_ALLOWED_MID_FREQ 1296000
 
 //low thermal limit
-#define DEF_ALLOWED_LOW_HIGH 63
-#define DEF_ALLOWED_LOW_FREQ 1188000
+#define DEF_ALLOWED_LOW_HIGH 58
+#define DEF_ALLOWED_LOW_FREQ 1350000
 
 //Sampling interval
 #define DEF_THERMAL_CHECK_MS 1000
@@ -63,15 +63,15 @@ static struct msm_thermal_tuners {
 	unsigned int check_interval_ms;
 } msm_thermal_tuners_ins = {
 	.allowed_max_high = DEF_ALLOWED_MAX_HIGH,
-	.allowed_max_low = (DEF_ALLOWED_MAX_HIGH - 5),
+	.allowed_max_low = (DEF_ALLOWED_MAX_HIGH - 6),
 	.allowed_max_freq = DEF_ALLOWED_MAX_FREQ,
 
 	.allowed_mid_high = DEF_ALLOWED_MID_HIGH,
-	.allowed_mid_low = (DEF_ALLOWED_MID_HIGH - 5),
+	.allowed_mid_low = (DEF_ALLOWED_MID_HIGH - 10),
 	.allowed_mid_freq = DEF_ALLOWED_MID_FREQ,
 
 	.allowed_low_high = DEF_ALLOWED_LOW_HIGH,
-	.allowed_low_low = (DEF_ALLOWED_LOW_HIGH - 6),
+	.allowed_low_low = (DEF_ALLOWED_LOW_HIGH - 5),
 	.allowed_low_freq = DEF_ALLOWED_LOW_FREQ,
 
 	.check_interval_ms = DEF_THERMAL_CHECK_MS,
